@@ -10,7 +10,8 @@ def get_db_connection():
         host='localhost',
         user='root',
         password='root',
-        database='db_iwellness'
+        database='db_iwellness',
+        auth_plugin='mysql_native_password'
     )
 
 @app.route('/api/dashboard-proveedor', methods=['GET'])
