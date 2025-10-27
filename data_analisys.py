@@ -7,9 +7,9 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:4200"}})
 # Conexión a la base de datos
 def get_db_connection():
     return mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='root',
+        host='mysql_iwellness',
+        user='iwellness_user',
+        password='iwellness_password',
         database='db_iwellness',
         auth_plugin='mysql_native_password'
     )
