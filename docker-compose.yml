@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  # ============================================
+  # Data Services: Consumer + Analytics API
+  # ============================================
+  data-services:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: data-services:latest
+    container_name: data-services
+    ports:
+      - "${DATA_SERVICES_PORT:-5000}:5000"
+    environment:
+      # Flask Configuration
+      - FLASK_HOST=${FLASK_HOST:-0.0.0.0}
+      - FLASK_PORT=${FLASK_PORT:-5000}
+      - FLASK_DEBUG=${FLASK_DEBUG:-False}
+      - FLASK_APP=data_analisys.py
+      
+      # MySQL Configuration (usar nombre del contenedor del módulo DB)
+      - MYSQL_HOST=${MYSQL_HOST:-mysql-iwellness}
+      - MYSQL_USER=${MYSQL_USER:-iwellness_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-iwellness_password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-db_iwellness}
+      
+      # RabbitMQ Configuration (para consumer.py)
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-rabbitmq}
+      - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-user}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-user}
+      
+      # CORS Configuration
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:4200,http://localhost:3000}
+      
+      # Python Configuration
+      - PYTHONUNBUFFERED=1
+    
+    networks:
+      - tesisNetwork
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/dashboard-admin').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  tesisNetwork:
+    external: true
