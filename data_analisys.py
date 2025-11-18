@@ -1,16 +1,20 @@
 from flask import Flask, jsonify, request
 import mysql.connector
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:4200"}})
+# Configurar CORS para aceptar peticiones desde el frontend
+CORS(app, resources={r"/*": {"origins": os.getenv('CORS_ORIGINS', 'http://localhost:4200').split(',')}})
+
 # Conexión a la base de datos
 def get_db_connection():
     return mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='root',
-        database='db_iwellness'
+        host=os.getenv('MYSQL_HOST', 'mysql_iwellness'),
+        user=os.getenv('MYSQL_USER', 'iwellness_user'),
+        password=os.getenv('MYSQL_PASSWORD', 'iwellness_password'),
+        database=os.getenv('MYSQL_DATABASE', 'db_iwellness'),
+        auth_plugin='mysql_native_password'
     )
 
 @app.route('/api/dashboard-proveedor', methods=['GET'])
@@ -348,4 +352,9 @@ def proveedor_reservas_por_estado_civil():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Obtener configuración desde variables de entorno
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', '5000'))
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    app.run(host=host, port=port, debug=debug)

@@ -1,13 +1,14 @@
 import pika
 import mysql.connector
 import json
+import os
 
-# Configuración de MySQL
+# Configuración de MySQL desde variables de entorno
 MYSQL_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'root',
-    'database': 'db_iwellness'
+    'host': os.getenv('MYSQL_HOST', 'localhost'),
+    'user': os.getenv('MYSQL_USER', 'root'),
+    'password': os.getenv('MYSQL_PASSWORD', 'root'),
+    'database': os.getenv('MYSQL_DATABASE', 'db_iwellness')
     
 }
 
@@ -190,10 +191,13 @@ def crear_callback(nombre_cola):
 # 🚀 Escuchar mensajes desde RabbitMQ
 def consumir_mensajes():
     try:
-        credentials = pika.PlainCredentials('user', 'user')
+        credentials = pika.PlainCredentials(
+            os.getenv('RABBITMQ_USERNAME', 'user'),
+            os.getenv('RABBITMQ_PASSWORD', 'user')
+        )
         parameters = pika.ConnectionParameters(
-            host='localhost',
-            port=5672,
+            host=os.getenv('RABBITMQ_HOST', 'localhost'),
+            port=int(os.getenv('RABBITMQ_PORT', '5672')),
             credentials=credentials,
             heartbeat=60,
             connection_attempts=5,
